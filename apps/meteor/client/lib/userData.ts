@@ -2,7 +2,6 @@ import type { ILivechatAgent, IUser, Serialized } from '@rocket.chat/core-typing
 import { ReactiveVar } from 'meteor/reactive-var';
 
 import { Users } from '../../app/models/client';
-import { Notifications } from '../../app/notifications/client';
 import { sdk } from '../../app/utils/client/lib/SDKClient';
 
 export const isSyncReady = new ReactiveVar(false);
@@ -60,7 +59,7 @@ export const synchronizeUserData = async (uid: IUser['_id']): Promise<RawUserDat
 
 	cancel?.();
 
-	const result = Notifications.onUser('userData', (data) => {
+	const result = sdk.stream('notify-user', [`${uid}/userData`], (data) => {
 		switch (data.type) {
 			case 'inserted':
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -112,7 +111,7 @@ export const synchronizeUserData = async (uid: IUser['_id']): Promise<RawUserDat
 										})),
 									}),
 								},
-						  }
+							}
 						: {}),
 					...(cloud
 						? {
@@ -120,9 +119,9 @@ export const synchronizeUserData = async (uid: IUser['_id']): Promise<RawUserDat
 									...cloud,
 									expiresAt: new Date(cloud.expiresAt),
 								},
-						  }
+							}
 						: {}),
-					emailCode: emailCode?.map(({ expire, ...data }) => ({ expire: new Date(expire), ...data })) || [],
+					...(emailCode ? { ...emailCode, expire: new Date(emailCode.expire) } : {}),
 					...(email2fa ? { email2fa: { ...email2fa, changedAt: new Date(email2fa.changedAt) } } : {}),
 					...(email?.verificationTokens && {
 						email: {

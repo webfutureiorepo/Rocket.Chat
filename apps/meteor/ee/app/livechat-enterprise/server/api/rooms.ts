@@ -3,10 +3,10 @@ import type { IOmnichannelRoom } from '@rocket.chat/core-typings';
 import { LivechatRooms, Subscriptions } from '@rocket.chat/models';
 import { isLivechatRoomOnHoldProps, isLivechatRoomResumeOnHoldProps, isPOSTLivechatRoomPriorityParams } from '@rocket.chat/rest-typings';
 
+import { removePriorityFromRoom, updateRoomPriority } from './lib/priorities';
 import { API } from '../../../../../app/api/server';
 import { hasPermissionAsync } from '../../../../../app/authorization/server/functions/hasPermission';
 import { i18n } from '../../../../../server/lib/i18n';
-import { removePriorityFromRoom, updateRoomPriority } from './lib/priorities';
 
 API.v1.addRoute(
 	'livechat/room.onHold',
@@ -67,7 +67,7 @@ API.v1.addRoute(
 
 			const { name, username, _id: userId } = this.user;
 			const onHoldBy = { _id: userId, username, name };
-			const comment = i18n.t('Omnichannel_On_Hold_manually', {
+			const comment = i18n.t('Omnichannel_on_hold_chat_resumed_manually', {
 				user: onHoldBy.name || `@${onHoldBy.username}`,
 			});
 

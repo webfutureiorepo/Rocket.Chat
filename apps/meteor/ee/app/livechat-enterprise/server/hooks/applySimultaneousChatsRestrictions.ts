@@ -11,7 +11,7 @@ callbacks.add(
 			const departmentLimit =
 				(
 					await LivechatDepartment.findOneById<Pick<ILivechatDepartment, 'maxNumberSimultaneousChat'>>(departmentId, {
-						projection: { maxNumberSimultaneousChats: 1 },
+						projection: { maxNumberSimultaneousChat: 1 },
 					})
 				)?.maxNumberSimultaneousChat || 0;
 			if (departmentLimit > 0) {
@@ -43,9 +43,9 @@ callbacks.add(
 							},
 							{ 'queueInfo.chats': { $gte: maxChatsPerSetting } },
 						],
-				  }
+					}
 				: // dummy filter meaning: don't match anything
-				  { _id: '' };
+					{ _id: '' };
 
 		return { $match: { $or: [agentFilter, globalFilter] } };
 	},

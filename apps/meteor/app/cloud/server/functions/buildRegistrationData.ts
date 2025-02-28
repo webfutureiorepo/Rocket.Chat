@@ -1,4 +1,4 @@
-import { LivechatRooms, Statistics, Users } from '@rocket.chat/models';
+import { LivechatContacts, Statistics, Users } from '@rocket.chat/models';
 import moment from 'moment';
 
 import { settings } from '../../../settings/server';
@@ -61,9 +61,15 @@ export async function buildWorkspaceRegistrationData<T extends string | undefine
 	const firstUser = await Users.getOldest({ projection: { name: 1, emails: 1 } });
 	const contactName = firstUser?.name || '';
 
-	const { organizationType, industry, size: orgSize, country, language, serverType: workspaceType, registerServer } = stats.wizard;
+	const country = settings.get<string>('Country');
+	const language = settings.get<string>('Language');
+	const organizationType = settings.get<string>('Organization_Type');
+	const industry = settings.get<string>('Industry');
+	const orgSize = settings.get<string>('Size');
+	const workspaceType = settings.get<string>('Server_Type');
+
 	const seats = await Users.getActiveLocalUserCount();
-	const [macs] = await LivechatRooms.getMACStatisticsForPeriod(moment.utc().format('YYYY-MM'));
+	const MAC = await LivechatContacts.countContactsOnPeriod(moment.utc().format('YYYY-MM'));
 
 	const license = settings.get<string>('Enterprise_License');
 
@@ -94,9 +100,9 @@ export async function buildWorkspaceRegistrationData<T extends string | undefine
 		...(license && { license }),
 		enterpriseReady: true,
 		setupComplete: setupWizardState === 'completed',
-		connectionDisable: !registerServer,
+		connectionDisable: false,
 		npsEnabled,
-		MAC: macs?.contactsCount ?? 0,
+		MAC,
 		// activeContactsBillingMonth: stats.omnichannelContactsBySource.contactsCount,
 		// activeContactsYesterday: stats.uniqueContactsOfYesterday.contactsCount,
 		statsToken: stats.statsToken,

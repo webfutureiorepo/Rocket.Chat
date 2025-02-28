@@ -1,8 +1,8 @@
 import { Modal, Box, Field, FieldLabel, FieldRow, TextInput, CheckBox, ButtonGroup, Button } from '@rocket.chat/fuselage';
 import { ExternalLink } from '@rocket.chat/ui-client';
-import { useEndpoint, useSetModal, useToastMessageDispatch, useTranslation } from '@rocket.chat/ui-contexts';
-import React from 'react';
-import { Trans } from 'react-i18next';
+import { useEndpoint, useSetModal, useToastMessageDispatch } from '@rocket.chat/ui-contexts';
+import { useId } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
 
 import WorkspaceRegistrationModal from '../RegisterWorkspaceModal';
 
@@ -31,7 +31,7 @@ const RegisterWorkspaceSetupStepOneModal = ({
 	...props
 }: Props) => {
 	const setModal = useSetModal();
-	const t = useTranslation();
+	const { t } = useTranslation();
 	const dispatchToastMessage = useToastMessageDispatch();
 
 	const createRegistrationIntent = useEndpoint('POST', '/v1/cloud.createRegistrationIntent');
@@ -51,6 +51,9 @@ const RegisterWorkspaceSetupStepOneModal = ({
 		}
 	};
 
+	const emailField = useId();
+	const termsField = useId();
+
 	return (
 		<Modal {...props}>
 			<Modal.Header>
@@ -66,9 +69,10 @@ const RegisterWorkspaceSetupStepOneModal = ({
 						{t('RegisterWorkspace_Setup_Subtitle')}
 					</Box>
 					<Field pbs={10}>
-						<FieldLabel>{t('RegisterWorkspace_Setup_Label')}</FieldLabel>
+						<FieldLabel htmlFor={emailField}>{t('RegisterWorkspace_Setup_Label')}</FieldLabel>
 						<FieldRow>
 							<TextInput
+								id={emailField}
 								onChange={(e) => {
 									setEmail((e.target as HTMLInputElement).value);
 								}}
@@ -85,16 +89,17 @@ const RegisterWorkspaceSetupStepOneModal = ({
 						</Box>
 						<Box is='p'>{t('RegisterWorkspace_Setup_No_Account_Subtitle')}</Box>
 					</Box>
-					<Box display='flex'>
-						<CheckBox checked={terms} onChange={() => setTerms(!terms)} />
-						<Box is='p' fontSize='c1' pis={8}>
-							<Trans i18nKey='RegisterWorkspace_Setup_Terms_Privacy'>
-								I agree with <ExternalLink to='https://rocket.chat/terms'>Terms and Conditions </ExternalLink>
-								and
-								<ExternalLink to='https://rocket.chat/privacy'>Privacy Policy</ExternalLink>
-							</Trans>
-						</Box>
-					</Box>
+					<Field>
+						<FieldRow justifyContent='initial'>
+							<FieldLabel display='block' fontScale='c1' htmlFor={termsField}>
+								<Trans i18nKey='RegisterWorkspace_Setup_Terms_Privacy'>
+									I agree with <ExternalLink to='https://rocket.chat/terms'>Terms and Conditions</ExternalLink> and{' '}
+									<ExternalLink to='https://rocket.chat/privacy'>Privacy Policy</ExternalLink>
+								</Trans>
+							</FieldLabel>
+							<CheckBox id={termsField} checked={terms} onChange={() => setTerms(!terms)} />
+						</FieldRow>
+					</Field>
 				</Box>
 			</Modal.Content>
 			<Modal.Footer>

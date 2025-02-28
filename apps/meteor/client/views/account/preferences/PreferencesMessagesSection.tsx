@@ -1,12 +1,11 @@
 import type { SelectOption } from '@rocket.chat/fuselage';
-import { FieldRow, FieldLink, FieldHint, FieldLabel, Accordion, Field, Select, FieldGroup, ToggleSwitch, Box } from '@rocket.chat/fuselage';
-import { useUniqueId } from '@rocket.chat/fuselage-hooks';
-import { useTranslation } from '@rocket.chat/ui-contexts';
-import React, { useMemo } from 'react';
+import { FieldRow, FieldLink, FieldHint, FieldLabel, AccordionItem, Field, Select, FieldGroup, ToggleSwitch } from '@rocket.chat/fuselage';
+import { useId, useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 const PreferencesMessagesSection = () => {
-	const t = useTranslation();
+	const { t } = useTranslation();
 	const { control } = useFormContext();
 
 	const alsoSendThreadMessageToChannelOptions = useMemo(
@@ -27,54 +26,50 @@ const PreferencesMessagesSection = () => {
 		[t],
 	);
 
-	const unreadAlertId = useUniqueId();
-	const showThreadsInMainChannelId = useUniqueId();
-	const alsoSendThreadToChannelId = useUniqueId();
-	const useEmojisId = useUniqueId();
-	const convertAsciiEmojiId = useUniqueId();
-	const autoImageLoadId = useUniqueId();
-	const saveMobileBandwidthId = useUniqueId();
-	const collapseMediaByDefaultId = useUniqueId();
-	const hideFlexTabId = useUniqueId();
-	const displayAvatarsId = useUniqueId();
-	const sendOnEnterId = useUniqueId();
+	const unreadAlertId = useId();
+	const showThreadsInMainChannelId = useId();
+	const alsoSendThreadToChannelId = useId();
+	const useEmojisId = useId();
+	const convertAsciiEmojiId = useId();
+	const autoImageLoadId = useId();
+	const saveMobileBandwidthId = useId();
+	const collapseMediaByDefaultId = useId();
+	const hideFlexTabId = useId();
+	const displayAvatarsId = useId();
+	const sendOnEnterId = useId();
 
 	return (
-		<Accordion.Item title={t('Messages')}>
+		<AccordionItem title={t('Messages')}>
 			<FieldGroup>
 				<Field>
-					<Box display='flex' flexDirection='row' justifyContent='spaceBetween' flexGrow={1}>
+					<FieldRow>
 						<FieldLabel htmlFor={unreadAlertId}>{t('Unread_Tray_Icon_Alert')}</FieldLabel>
-						<FieldRow>
-							<Controller
-								name='unreadAlert'
-								control={control}
-								render={({ field: { value, onChange, ref } }) => (
-									<ToggleSwitch id={unreadAlertId} ref={ref} checked={value} onChange={onChange} />
-								)}
-							/>
-						</FieldRow>
-					</Box>
+						<Controller
+							name='unreadAlert'
+							control={control}
+							render={({ field: { value, onChange, ref } }) => (
+								<ToggleSwitch id={unreadAlertId} ref={ref} checked={value} onChange={onChange} />
+							)}
+						/>
+					</FieldRow>
 				</Field>
 				<Field>
-					<Box display='flex' flexDirection='row' justifyContent='spaceBetween' flexGrow={1}>
+					<FieldRow>
 						<FieldLabel htmlFor={showThreadsInMainChannelId}>{t('Always_show_thread_replies_in_main_channel')}</FieldLabel>
-						<FieldRow>
-							<Controller
-								name='showThreadsInMainChannel'
-								control={control}
-								render={({ field: { value, onChange, ref } }) => (
-									<ToggleSwitch
-										aria-describedby={`${showThreadsInMainChannelId}-hint`}
-										id={showThreadsInMainChannelId}
-										ref={ref}
-										checked={value}
-										onChange={onChange}
-									/>
-								)}
-							/>
-						</FieldRow>
-					</Box>
+						<Controller
+							name='showThreadsInMainChannel'
+							control={control}
+							render={({ field: { value, onChange, ref } }) => (
+								<ToggleSwitch
+									aria-describedby={`${showThreadsInMainChannelId}-hint`}
+									id={showThreadsInMainChannelId}
+									ref={ref}
+									checked={value}
+									onChange={onChange}
+								/>
+							)}
+						/>
+					</FieldRow>
 					<FieldHint id={`${showThreadsInMainChannelId}-hint`}>
 						{t('Accounts_Default_User_Preferences_showThreadsInMainChannel_Description')}
 					</FieldHint>
@@ -105,74 +100,64 @@ const PreferencesMessagesSection = () => {
 					<FieldLink href='/account/accessibility-and-appearance'>{t('Go_to_accessibility_and_appearance')}</FieldLink>
 				</Field>
 				<Field>
-					<Box display='flex' flexDirection='row' justifyContent='spaceBetween' flexGrow={1}>
+					<FieldRow>
 						<FieldLabel htmlFor={useEmojisId}>{t('Use_Emojis')}</FieldLabel>
-						<FieldRow>
-							<Controller
-								name='useEmojis'
-								control={control}
-								render={({ field: { value, onChange, ref } }) => (
-									<ToggleSwitch id={useEmojisId} ref={ref} checked={value} onChange={onChange} />
-								)}
-							/>
-						</FieldRow>
-					</Box>
+						<Controller
+							name='useEmojis'
+							control={control}
+							render={({ field: { value, onChange, ref } }) => (
+								<ToggleSwitch id={useEmojisId} ref={ref} checked={value} onChange={onChange} />
+							)}
+						/>
+					</FieldRow>
 				</Field>
 				<Field>
-					<Box display='flex' flexDirection='row' justifyContent='spaceBetween' flexGrow={1}>
+					<FieldRow>
 						<FieldLabel htmlFor={convertAsciiEmojiId}>{t('Convert_Ascii_Emojis')}</FieldLabel>
-						<FieldRow>
-							<Controller
-								name='convertAsciiEmoji'
-								control={control}
-								render={({ field: { value, onChange, ref } }) => (
-									<ToggleSwitch id={convertAsciiEmojiId} ref={ref} checked={value} onChange={onChange} />
-								)}
-							/>
-						</FieldRow>
-					</Box>
+						<Controller
+							name='convertAsciiEmoji'
+							control={control}
+							render={({ field: { value, onChange, ref } }) => (
+								<ToggleSwitch id={convertAsciiEmojiId} ref={ref} checked={value} onChange={onChange} />
+							)}
+						/>
+					</FieldRow>
 				</Field>
 				<Field>
-					<Box display='flex' flexDirection='row' justifyContent='spaceBetween' flexGrow={1}>
+					<FieldRow>
 						<FieldLabel htmlFor={autoImageLoadId}>{t('Auto_Load_Images')}</FieldLabel>
-						<FieldRow>
-							<Controller
-								name='autoImageLoad'
-								control={control}
-								render={({ field: { value, onChange, ref } }) => (
-									<ToggleSwitch id={autoImageLoadId} ref={ref} checked={value} onChange={onChange} />
-								)}
-							/>
-						</FieldRow>
-					</Box>
+						<Controller
+							name='autoImageLoad'
+							control={control}
+							render={({ field: { value, onChange, ref } }) => (
+								<ToggleSwitch id={autoImageLoadId} ref={ref} checked={value} onChange={onChange} />
+							)}
+						/>
+					</FieldRow>
 				</Field>
 				<Field>
-					<Box display='flex' flexDirection='row' justifyContent='spaceBetween' flexGrow={1}>
+					<FieldRow>
 						<FieldLabel htmlFor={saveMobileBandwidthId}>{t('Save_Mobile_Bandwidth')}</FieldLabel>
-						<FieldRow>
-							<Controller
-								name='saveMobileBandwidth'
-								control={control}
-								render={({ field: { value, onChange, ref } }) => (
-									<ToggleSwitch id={saveMobileBandwidthId} ref={ref} checked={value} onChange={onChange} />
-								)}
-							/>
-						</FieldRow>
-					</Box>
+						<Controller
+							name='saveMobileBandwidth'
+							control={control}
+							render={({ field: { value, onChange, ref } }) => (
+								<ToggleSwitch id={saveMobileBandwidthId} ref={ref} checked={value} onChange={onChange} />
+							)}
+						/>
+					</FieldRow>
 				</Field>
 				<Field>
-					<Box display='flex' flexDirection='row' justifyContent='spaceBetween' flexGrow={1}>
+					<FieldRow>
 						<FieldLabel htmlFor={collapseMediaByDefaultId}>{t('Collapse_Embedded_Media_By_Default')}</FieldLabel>
-						<FieldRow>
-							<Controller
-								name='collapseMediaByDefault'
-								control={control}
-								render={({ field: { value, onChange, ref } }) => (
-									<ToggleSwitch id={collapseMediaByDefaultId} ref={ref} checked={value} onChange={onChange} />
-								)}
-							/>
-						</FieldRow>
-					</Box>
+						<Controller
+							name='collapseMediaByDefault'
+							control={control}
+							render={({ field: { value, onChange, ref } }) => (
+								<ToggleSwitch id={collapseMediaByDefaultId} ref={ref} checked={value} onChange={onChange} />
+							)}
+						/>
+					</FieldRow>
 				</Field>
 				<Field>
 					<FieldLabel>{t('Hide_usernames')}</FieldLabel>
@@ -183,32 +168,28 @@ const PreferencesMessagesSection = () => {
 					<FieldLink href='/account/accessibility-and-appearance'>{t('Go_to_accessibility_and_appearance')}</FieldLink>
 				</Field>
 				<Field>
-					<Box display='flex' flexDirection='row' justifyContent='spaceBetween' flexGrow={1}>
+					<FieldRow>
 						<FieldLabel htmlFor={hideFlexTabId}>{t('Hide_flextab')}</FieldLabel>
-						<FieldRow>
-							<Controller
-								name='hideFlexTab'
-								control={control}
-								render={({ field: { value, onChange, ref } }) => (
-									<ToggleSwitch id={hideFlexTabId} ref={ref} checked={value} onChange={onChange} />
-								)}
-							/>
-						</FieldRow>
-					</Box>
+						<Controller
+							name='hideFlexTab'
+							control={control}
+							render={({ field: { value, onChange, ref } }) => (
+								<ToggleSwitch id={hideFlexTabId} ref={ref} checked={value} onChange={onChange} />
+							)}
+						/>
+					</FieldRow>
 				</Field>
 				<Field>
-					<Box display='flex' flexDirection='row' justifyContent='spaceBetween' flexGrow={1}>
+					<FieldRow>
 						<FieldLabel htmlFor={displayAvatarsId}>{t('Display_avatars')}</FieldLabel>
-						<FieldRow>
-							<Controller
-								name='displayAvatars'
-								control={control}
-								render={({ field: { value, onChange, ref } }) => (
-									<ToggleSwitch id={displayAvatarsId} ref={ref} checked={value} onChange={onChange} />
-								)}
-							/>
-						</FieldRow>
-					</Box>
+						<Controller
+							name='displayAvatars'
+							control={control}
+							render={({ field: { value, onChange, ref } }) => (
+								<ToggleSwitch id={displayAvatarsId} ref={ref} checked={value} onChange={onChange} />
+							)}
+						/>
+					</FieldRow>
 				</Field>
 				<Field>
 					<FieldLabel htmlFor={sendOnEnterId}>{t('Enter_Behaviour')}</FieldLabel>
@@ -224,7 +205,7 @@ const PreferencesMessagesSection = () => {
 					<FieldHint>{t('Enter_Behaviour_Description')}</FieldHint>
 				</Field>
 			</FieldGroup>
-		</Accordion.Item>
+		</AccordionItem>
 	);
 };
 

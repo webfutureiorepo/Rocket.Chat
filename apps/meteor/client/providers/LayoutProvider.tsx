@@ -1,12 +1,24 @@
 import { useBreakpoints } from '@rocket.chat/fuselage-hooks';
 import { LayoutContext, useRouter, useSetting } from '@rocket.chat/ui-contexts';
-import type { FC } from 'react';
-import React, { useMemo, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
-const LayoutProvider: FC = ({ children }) => {
-	const showTopNavbarEmbeddedLayout = Boolean(useSetting('UI_Show_top_navbar_embedded_layout'));
+const hiddenActionsDefaultValue = {
+	roomToolbox: [],
+	messageToolbox: [],
+	composerToolbox: [],
+	userToolbox: [],
+};
+
+type LayoutProviderProps = {
+	children?: ReactNode;
+};
+
+const LayoutProvider = ({ children }: LayoutProviderProps) => {
+	const showTopNavbarEmbeddedLayout = useSetting('UI_Show_top_navbar_embedded_layout', false);
 	const [isCollapsed, setIsCollapsed] = useState(false);
 	const breakpoints = useBreakpoints(); // ["xs", "sm", "md", "lg", "xl", xxl"]
+	const [hiddenActions, setHiddenActions] = useState(hiddenActionsDefaultValue);
 
 	const router = useRouter();
 	// Once the layout is embedded, it can't be changed
@@ -18,6 +30,18 @@ const LayoutProvider: FC = ({ children }) => {
 		setIsCollapsed(isMobile);
 	}, [isMobile]);
 
+	useEffect(() => {
+		const eventHandler = (event: MessageEvent<any>) => {
+			if (event.data?.event !== 'overrideUi') {
+				return;
+			}
+
+			setHiddenActions({ ...hiddenActionsDefaultValue, ...event.data.hideActions });
+		};
+		window.addEventListener('message', eventHandler);
+		return () => window.removeEventListener('message', eventHandler);
+	}, []);
+
 	return (
 		<LayoutContext.Provider
 			children={children}
@@ -28,7 +52,7 @@ const LayoutProvider: FC = ({ children }) => {
 					showTopNavbarEmbeddedLayout,
 					sidebar: {
 						isCollapsed,
-						toggle: () => setIsCollapsed((isCollapsed) => !isCollapsed),
+						toggle: isMobile ? () => setIsCollapsed((isCollapsed) => !isCollapsed) : () => undefined,
 						collapse: () => setIsCollapsed(true),
 						expand: () => setIsCollapsed(false),
 						close: () => (isEmbedded ? setIsCollapsed(true) : router.navigate('/home')),
@@ -42,8 +66,9 @@ const LayoutProvider: FC = ({ children }) => {
 					contextualBarExpanded: breakpoints.includes('sm'),
 					// eslint-disable-next-line no-nested-ternary
 					contextualBarPosition: breakpoints.includes('sm') ? (breakpoints.includes('lg') ? 'relative' : 'absolute') : 'fixed',
+					hiddenActions,
 				}),
-				[isMobile, isEmbedded, showTopNavbarEmbeddedLayout, isCollapsed, breakpoints, router],
+				[isMobile, isEmbedded, showTopNavbarEmbeddedLayout, isCollapsed, breakpoints, router, hiddenActions],
 			)}
 		/>
 	);

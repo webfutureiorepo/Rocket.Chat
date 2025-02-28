@@ -1,9 +1,9 @@
 import { MeteorError } from '@rocket.chat/core-services';
 import { License } from '@rocket.chat/license';
 
+import { validateUserRoles } from './validateUserRoles';
 import { callbacks } from '../../../../lib/callbacks';
 import { i18n } from '../../../../server/lib/i18n';
-import { validateUserRoles } from './validateUserRoles';
 
 License.onInstall(() => {
 	callbacks.add(
@@ -12,10 +12,36 @@ License.onInstall(() => {
 		callbacks.priority.HIGH,
 		'validateUserRoles',
 	);
-	callbacks.add('afterSaveUser', () => License.shouldPreventAction('activeUsers'), callbacks.priority.HIGH, 'validateUserRoles');
-	callbacks.add('afterDeleteUser', () => License.shouldPreventAction('activeUsers'), callbacks.priority.HIGH, 'validateUserRoles');
+	callbacks.add(
+		'afterSaveUser',
+		async (user) => {
+			await License.shouldPreventAction('activeUsers');
 
-	callbacks.add('afterDeactivateUser', () => License.shouldPreventAction('activeUsers'), callbacks.priority.HIGH, 'validateUserStatus');
+			return user;
+		},
+		callbacks.priority.HIGH,
+		'validateUserRoles',
+	);
+	callbacks.add(
+		'afterDeleteUser',
+		async (user) => {
+			await License.shouldPreventAction('activeUsers');
+
+			return user;
+		},
+		callbacks.priority.HIGH,
+		'validateUserRoles',
+	);
+
+	callbacks.add(
+		'afterDeactivateUser',
+		async (user) => {
+			await License.shouldPreventAction('activeUsers');
+			return user;
+		},
+		callbacks.priority.HIGH,
+		'validateUserStatus',
+	);
 
 	callbacks.add(
 		'beforeActivateUser',

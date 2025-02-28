@@ -1,6 +1,5 @@
-import type { LicenseLimitKind } from '../definition/ILicenseV3';
-import type { BehaviorWithContext, LicenseBehavior } from '../definition/LicenseBehavior';
-import type { LicenseModule } from '../definition/LicenseModule';
+import type { LicenseLimitKind, LicenseModule, BehaviorWithContext, LicenseBehavior } from '@rocket.chat/core-typings';
+
 import type { LicenseManager } from '../license';
 import { hasModule } from '../modules';
 
@@ -84,7 +83,7 @@ export function onToggledFeature(
 	};
 }
 
-export function onModule(this: LicenseManager, cb: (data: { module: LicenseModule; valid: boolean }) => void) {
+export function onModule(this: LicenseManager, cb: (data: { module: LicenseModule; external: boolean; valid: boolean }) => void) {
 	this.on('module', cb);
 }
 

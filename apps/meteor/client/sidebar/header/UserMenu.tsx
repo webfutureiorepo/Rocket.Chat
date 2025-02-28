@@ -1,19 +1,24 @@
 import type { IUser } from '@rocket.chat/core-typings';
-import { FeaturePreview, FeaturePreviewOn, FeaturePreviewOff } from '@rocket.chat/ui-client';
-import { useTranslation } from '@rocket.chat/ui-contexts';
-import React, { useState, memo } from 'react';
+import {
+	FeaturePreview,
+	FeaturePreviewOn,
+	FeaturePreviewOff,
+	GenericMenu,
+	useHandleMenuAction,
+	type GenericMenuItemProps,
+} from '@rocket.chat/ui-client';
+import { useLayout } from '@rocket.chat/ui-contexts';
+import { useState, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import GenericMenu from '../../components/GenericMenu/GenericMenu';
-import type { GenericMenuItemProps } from '../../components/GenericMenu/GenericMenuItem';
-import { useHandleMenuAction } from '../../components/GenericMenu/hooks/useHandleMenuAction';
 import UserAvatarWithStatus from './UserAvatarWithStatus';
 import UserAvatarWithStatusUnstable from './UserAvatarWithStatusUnstable';
 import { useUserMenu } from './hooks/useUserMenu';
 
 const UserMenu = ({ user }: { user: IUser }) => {
-	const t = useTranslation();
+	const { t } = useTranslation();
 	const [isOpen, setIsOpen] = useState(false);
-
+	const { sidebar } = useLayout();
 	const sections = useUserMenu(user);
 	const items = sections.reduce((acc, { items }) => [...acc, ...items], [] as GenericMenuItemProps[]);
 
@@ -28,9 +33,11 @@ const UserMenu = ({ user }: { user: IUser }) => {
 					selectionMode='multiple'
 					sections={sections}
 					title={t('User_menu')}
+					aria-label={t('User_menu')}
 					onAction={handleAction}
 					isOpen={isOpen}
 					onOpenChange={setIsOpen}
+					disabled={sidebar.isCollapsed}
 				/>
 			</FeaturePreviewOff>
 			<FeaturePreviewOn>
@@ -41,9 +48,11 @@ const UserMenu = ({ user }: { user: IUser }) => {
 					selectionMode='multiple'
 					sections={sections}
 					title={t('User_menu')}
+					aria-label={t('User_menu')}
 					onAction={handleAction}
 					isOpen={isOpen}
 					onOpenChange={setIsOpen}
+					disabled={sidebar.isCollapsed}
 				/>
 			</FeaturePreviewOn>
 		</FeaturePreview>
