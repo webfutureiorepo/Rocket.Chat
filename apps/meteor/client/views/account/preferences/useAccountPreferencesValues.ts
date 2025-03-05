@@ -35,11 +35,13 @@ export type AccountPreferencesData = {
 	sidebarViewMode?: string;
 	sidebarDisplayAvatar?: boolean;
 	sidebarGroupByType?: boolean;
+	masterVolume?: number;
 	notificationsSoundVolume?: number;
+	voipRingerVolume?: number;
 };
 
 export const useAccountPreferencesValues = (): AccountPreferencesData => {
-	const language = useUserPreference<string>('language');
+	const language = useUserPreference<string>('language') || '';
 	const userDontAskAgainList = useUserPreference<{ action: string; label: string }[]>('dontAskAgainList') || [];
 	const dontAskAgainList = userDontAskAgainList.map(({ action }) => action);
 	const enableAutoAway = useUserPreference<boolean>('enableAutoAway');
@@ -70,7 +72,10 @@ export const useAccountPreferencesValues = (): AccountPreferencesData => {
 	const newRoomNotification = useUserPreference<string>('newRoomNotification');
 	const newMessageNotification = useUserPreference<string>('newMessageNotification');
 	const muteFocusedConversations = useUserPreference<boolean>('muteFocusedConversations');
-	const notificationsSoundVolume = useUserPreference<number>('notificationsSoundVolume');
+
+	const masterVolume = useUserPreference<number>('masterVolume', 100);
+	const notificationsSoundVolume = useUserPreference<number>('notificationsSoundVolume', 100);
+	const voipRingerVolume = useUserPreference<number>('voipRingerVolume', 100);
 
 	return {
 		language,
@@ -99,6 +104,8 @@ export const useAccountPreferencesValues = (): AccountPreferencesData => {
 		newRoomNotification,
 		newMessageNotification,
 		muteFocusedConversations,
+		masterVolume,
 		notificationsSoundVolume,
+		voipRingerVolume,
 	};
 };

@@ -1,8 +1,9 @@
 import { Banner } from '@rocket.chat/core-services';
 import type { IUiKitCoreApp, UiKitCoreAppPayload } from '@rocket.chat/core-services';
-import type { Cloud, IBanner, IUser, UiKit } from '@rocket.chat/core-typings';
+import type { Cloud, IBanner, IUser } from '@rocket.chat/core-typings';
 import { Banners } from '@rocket.chat/models';
 import { serverFetch as fetch } from '@rocket.chat/server-fetch';
+import type * as UiKit from '@rocket.chat/ui-kit';
 
 import { getWorkspaceAccessToken } from '../../../app/cloud/server';
 import { syncWorkspace } from '../../../app/cloud/server/functions/syncWorkspace';
@@ -66,9 +67,8 @@ export class CloudAnnouncementsModule implements IUiKitCoreApp {
 		const type = announcement?.surface === 'banner' ? 'banner.close' : 'modal.close';
 
 		// for viewClosed we just need to let Cloud know that the banner was closed, no need to wait for the response
-		setImmediate(async () => {
-			await this.handlePayload(payload);
-		});
+
+		void this.handlePayload(payload);
 
 		return {
 			type,

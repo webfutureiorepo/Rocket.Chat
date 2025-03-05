@@ -1,4 +1,7 @@
-import { FlowRouter } from 'meteor/kadira:flow-router';
+import './serviceWorker';
+import './startup/accounts';
+
+import { FlowRouter } from 'meteor/ostrio:flow-router-extra';
 
 FlowRouter.wait();
 
@@ -7,9 +10,9 @@ FlowRouter.notFound = {
 };
 
 import('./polyfills')
-	.then(() => Promise.all([import('./lib/meteorCallWrapper'), import('../lib/oauthRedirectUriClient')]))
-	.then(() => import('../ee/client/ecdh'))
+	.then(() => import('./meteorOverrides'))
+	.then(() => import('./ecdh'))
 	.then(() => import('./importPackages'))
-	.then(() => Promise.all([import('./methods'), import('./startup')]))
-	.then(() => import('../ee/client'))
+	.then(() => import('./startup'))
+	.then(() => import('./omnichannel'))
 	.then(() => Promise.all([import('./views/admin'), import('./views/marketplace'), import('./views/account')]));

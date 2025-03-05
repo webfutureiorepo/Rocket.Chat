@@ -1,8 +1,8 @@
 import { Modal, Button, Box, Icon } from '@rocket.chat/fuselage';
-import { useToastMessageDispatch, useTranslation } from '@rocket.chat/ui-contexts';
+import { useToastMessageDispatch } from '@rocket.chat/ui-contexts';
 import type { ComponentProps, ReactElement } from 'react';
-import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 type AddMatrixUsersModalProps = {
 	matrixIdVerifiedStatus: Map<string, string>;
@@ -34,6 +34,7 @@ const AddMatrixUsersModal = ({ onClose, matrixIdVerifiedStatus, onSave, complete
 	const usersToInvite = completeUserList.filter(
 		(user) => !(matrixIdVerifiedStatus.has(user) && matrixIdVerifiedStatus.get(user) === 'UNVERIFIED'),
 	);
+	const rocketChatUsers = usersToInvite.filter((user) => !matrixIdVerifiedStatus.has(user));
 
 	const { handleSubmit } = useForm<FormValues>({
 		defaultValues: {
@@ -47,13 +48,13 @@ const AddMatrixUsersModal = ({ onClose, matrixIdVerifiedStatus, onSave, complete
 			.catch((error) => dispatchToastMessage({ type: 'error', message: error as Error }));
 	};
 
-	const t = useTranslation();
+	const { t } = useTranslation();
 
 	return (
 		<Modal>
 			<Modal.Header>
 				<Modal.HeaderText>
-					<Modal.Title>Sending Invitations</Modal.Title>
+					<Modal.Title>{t('Continue_Adding')}</Modal.Title>
 				</Modal.HeaderText>
 				<Modal.Close title={t('Close')} onClick={onClose} />
 			</Modal.Header>
@@ -64,6 +65,9 @@ const AddMatrixUsersModal = ({ onClose, matrixIdVerifiedStatus, onSave, complete
 							<li key={_matrixId}>
 								{_matrixId}: <Icon name={verificationStatusAsIcon(_verificationStatus) as ComponentProps<typeof Icon>['name']} size='x20' />
 							</li>
+						))}
+						{rocketChatUsers.map((_user) => (
+							<li key={`rocket-chat-${_user}`}>{_user}</li>
 						))}
 					</Box>
 				</Box>

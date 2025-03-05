@@ -1,23 +1,20 @@
-import { usePermission, useRouteParameter, useTranslation } from '@rocket.chat/ui-contexts';
+import { usePermission, useRouteParameter } from '@rocket.chat/ui-contexts';
 import type { ReactElement } from 'react';
-import React, { useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import Page from '../../../components/Page';
-import NotAuthorizedPage from '../../notAuthorized/NotAuthorizedPage';
-import AgentsTab from './AgentsTab';
+import AgentEditWithData from './AgentEditWithData';
+import AgentInfo from './AgentInfo';
 import AgentsTable from './AgentsTable/AgentsTable';
+import { ContextualbarDialog } from '../../../components/Contextualbar';
+import { Page, PageHeader, PageContent } from '../../../components/Page';
+import NotAuthorizedPage from '../../notAuthorized/NotAuthorizedPage';
 
 const AgentsPage = (): ReactElement => {
-	const t = useTranslation();
-	const reload = useRef(() => null);
+	const { t } = useTranslation();
 	const canViewAgents = usePermission('manage-livechat-agents');
 
 	const context = useRouteParameter('context');
 	const id = useRouteParameter('id');
-
-	const handleReload = useCallback(() => {
-		reload.current();
-	}, [reload]);
 
 	if (!canViewAgents) {
 		return <NotAuthorizedPage />;
@@ -26,12 +23,17 @@ const AgentsPage = (): ReactElement => {
 	return (
 		<Page flexDirection='row'>
 			<Page>
-				<Page.Header title={t('Agents')} />
-				<Page.Content>
-					<AgentsTable reload={reload} />
-				</Page.Content>
+				<PageHeader title={t('Agents')} />
+				<PageContent>
+					<AgentsTable />
+				</PageContent>
 			</Page>
-			{context && id && <AgentsTab reload={handleReload} context={context} id={id} />}
+			{context && (
+				<ContextualbarDialog>
+					{id && context === 'edit' && <AgentEditWithData uid={id} />}
+					{id && context === 'info' && <AgentInfo uid={id} />}
+				</ContextualbarDialog>
+			)}
 		</Page>
 	);
 };

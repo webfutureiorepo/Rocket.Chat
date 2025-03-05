@@ -1,13 +1,15 @@
-import { useRouteParameter, useTranslation } from '@rocket.chat/ui-contexts';
+import { useRouteParameter } from '@rocket.chat/ui-contexts';
 import type { ReactElement } from 'react';
-import React, { useRef } from 'react';
+import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import Page from '../../../components/Page';
 import EditRoomWithData from './EditRoomWithData';
 import RoomsTable from './RoomsTable';
+import { ContextualbarDialog } from '../../../components/Contextualbar';
+import { Page, PageHeader, PageContent } from '../../../components/Page';
 
 const RoomsPage = (): ReactElement => {
-	const t = useTranslation();
+	const { t } = useTranslation();
 
 	const id = useRouteParameter('id');
 	const context = useRouteParameter('context');
@@ -17,12 +19,16 @@ const RoomsPage = (): ReactElement => {
 	return (
 		<Page flexDirection='row'>
 			<Page>
-				<Page.Header title={t('Rooms')} />
-				<Page.Content>
+				<PageHeader title={t('Rooms')} />
+				<PageContent>
 					<RoomsTable reload={reloadRef} />
-				</Page.Content>
+				</PageContent>
 			</Page>
-			{context && <EditRoomWithData rid={id} onReload={reloadRef.current} />}
+			{context && (
+				<ContextualbarDialog>
+					<EditRoomWithData rid={id} onReload={reloadRef.current} />
+				</ContextualbarDialog>
+			)}
 		</Page>
 	);
 };

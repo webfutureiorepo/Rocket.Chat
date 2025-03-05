@@ -1,22 +1,28 @@
 import { Box, Button, TextInput, Margins } from '@rocket.chat/fuselage';
 import { useSafely } from '@rocket.chat/fuselage-hooks';
-import { useSetModal, useToastMessageDispatch, useUser, useMethod, useTranslation, useEndpoint } from '@rocket.chat/ui-contexts';
-import type { ReactElement, ComponentProps } from 'react';
-import React, { useState, useCallback, useEffect } from 'react';
+import { useSetModal, useToastMessageDispatch, useUser, useMethod } from '@rocket.chat/ui-contexts';
+import type { ReactElement, ComponentPropsWithoutRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import qrcode from 'yaqrcode';
 
+import BackupCodesModal from './BackupCodesModal';
 import TextCopy from '../../../components/TextCopy';
 import TwoFactorTotpModal from '../../../components/TwoFactorModal/TwoFactorTotpModal';
-import BackupCodesModal from './BackupCodesModal';
 
-const TwoFactorTOTP = (props: ComponentProps<typeof Box>): ReactElement => {
-	const t = useTranslation();
+type TwoFactorTOTPFormData = {
+	authCode: string;
+};
+
+type TwoFactorTOTPProps = ComponentPropsWithoutRef<typeof Box>;
+
+const TwoFactorTOTP = (props: TwoFactorTOTPProps): ReactElement => {
+	const { t } = useTranslation();
 	const dispatchToastMessage = useToastMessageDispatch();
 	const user = useUser();
 	const setModal = useSetModal();
 
-	const logoutOtherSessions = useEndpoint('POST', '/v1/users.logoutOtherClients');
 	const enableTotpFn = useMethod('2fa:enable');
 	const disableTotpFn = useMethod('2fa:disable');
 	const verifyCodeFn = useMethod('2fa:validateTempToken');
@@ -28,7 +34,7 @@ const TwoFactorTOTP = (props: ComponentProps<typeof Box>): ReactElement => {
 	const [totpSecret, setTotpSecret] = useSafely(useState<string>());
 	const [codesRemaining, setCodesRemaining] = useSafely(useState(0));
 
-	const { register, handleSubmit } = useForm({ defaultValues: { authCode: '' } });
+	const { register, handleSubmit } = useForm<TwoFactorTOTPFormData>({ defaultValues: { authCode: '' } });
 
 	const totpEnabled = user?.services?.totp?.enabled;
 
@@ -78,7 +84,7 @@ const TwoFactorTOTP = (props: ComponentProps<typeof Box>): ReactElement => {
 	}, [closeModal, disableTotpFn, dispatchToastMessage, setModal, t]);
 
 	const handleVerifyCode = useCallback(
-		async ({ authCode }) => {
+		async ({ authCode }: TwoFactorTOTPFormData) => {
 			try {
 				const result = await verifyCodeFn(authCode);
 
@@ -86,13 +92,13 @@ const TwoFactorTOTP = (props: ComponentProps<typeof Box>): ReactElement => {
 					return dispatchToastMessage({ type: 'error', message: t('Invalid_two_factor_code') });
 				}
 
-				logoutOtherSessions();
+				setRegisteringTotp(false);
 				setModal(<BackupCodesModal codes={result.codes} onClose={closeModal} />);
 			} catch (error) {
 				dispatchToastMessage({ type: 'error', message: error });
 			}
 		},
-		[closeModal, dispatchToastMessage, logoutOtherSessions, setModal, t, verifyCodeFn],
+		[closeModal, dispatchToastMessage, setModal, t, verifyCodeFn, setRegisteringTotp],
 	);
 
 	const handleRegenerateCodes = useCallback(() => {
@@ -109,13 +115,13 @@ const TwoFactorTOTP = (props: ComponentProps<typeof Box>): ReactElement => {
 			}
 		};
 
-		setModal(<TwoFactorTotpModal onConfirm={onRegenerate} onClose={closeModal} />);
-	}, [closeModal, dispatchToastMessage, regenerateCodesFn, setModal, t]);
+		setModal(<TwoFactorTotpModal onDismiss={() => undefined} onConfirm={onRegenerate} onClose={closeModal} />);
+	}, [closeModal, dispatchToastMessage, setModal, regenerateCodesFn, t]);
 
 	return (
 		<Box display='flex' flexDirection='column' alignItems='flex-start' {...props}>
 			<Margins blockEnd={8}>
-				<Box fontScale='h4'>{t('Two-factor_authentication')}</Box>
+				<Box fontScale='h4'>{t('Two-factor_authentication_via_TOTP')}</Box>
 				{!totpEnabled && !registeringTotp && (
 					<>
 						<Box>{t('Two-factor_authentication_is_currently_disabled')}</Box>

@@ -2,7 +2,8 @@ import type { IRoom } from '@rocket.chat/core-typings';
 import { Avatar } from '@rocket.chat/fuselage';
 import { SettingsContext } from '@rocket.chat/ui-contexts';
 import { action } from '@storybook/addon-actions';
-import type { ComponentMeta } from '@storybook/react';
+import type { Meta } from '@storybook/react';
+import { ComponentType } from 'react';
 
 import {
 	Header,
@@ -10,9 +11,9 @@ import {
 	HeaderContent,
 	HeaderContentRow,
 	HeaderIcon,
-	HeaderToolbox,
-	HeaderToolboxAction,
-	HeaderToolboxActionBadge,
+	HeaderToolbar,
+	HeaderToolbarAction,
+	HeaderToolbarActionBadge,
 	HeaderTitle,
 	HeaderState,
 	HeaderSubtitle,
@@ -25,11 +26,11 @@ export default {
 	title: 'Components/Header',
 	component: Header,
 	subcomponents: {
-		HeaderToolbox,
-		HeaderToolboxAction,
-		HeaderAvatar,
-		HeaderContent,
-		HeaderContentRow,
+		HeaderToolbar: HeaderToolbar as ComponentType<any>,
+		HeaderToolbarAction: HeaderToolbarAction as ComponentType<any>,
+		HeaderAvatar: HeaderAvatar as ComponentType<any>,
+		HeaderContent: HeaderContent as ComponentType<any>,
+		HeaderContentRow: HeaderContentRow as ComponentType<any>,
 	},
 	parameters: {
 		layout: 'fullscreen',
@@ -66,7 +67,7 @@ export default {
 			</SettingsContext.Provider>
 		),
 	],
-} as ComponentMeta<typeof Header>;
+} satisfies Meta<typeof Header>;
 
 const room: IRoom = {
 	t: 'c',
@@ -103,19 +104,19 @@ export const Default = () => (
 				<HeaderSubtitle>{room.name}</HeaderSubtitle>
 			</HeaderContentRow>
 		</HeaderContent>
-		<HeaderToolbox>
-			<HeaderToolboxAction icon='magnifier' />
-			<HeaderToolboxAction icon='key' />
-			<HeaderToolboxAction icon='kebab' />
-		</HeaderToolbox>
+		<HeaderToolbar>
+			<HeaderToolbarAction icon='magnifier' />
+			<HeaderToolbarAction icon='key' />
+			<HeaderToolbarAction icon='kebab' />
+		</HeaderToolbar>
 	</Header>
 );
 
 export const WithBurger = () => (
 	<Header>
-		<HeaderToolbox>
-			<HeaderToolboxAction icon='burger' />
-		</HeaderToolbox>
+		<HeaderToolbar>
+			<HeaderToolbarAction icon='burger' />
+		</HeaderToolbar>
 		<HeaderAvatar>{avatar}</HeaderAvatar>
 		<HeaderContent>
 			<HeaderContentRow>
@@ -129,11 +130,11 @@ export const WithBurger = () => (
 				<HeaderSubtitle>{room.name}</HeaderSubtitle>
 			</HeaderContentRow>
 		</HeaderContent>
-		<HeaderToolbox>
-			<HeaderToolboxAction icon='magnifier' />
-			<HeaderToolboxAction icon='key' />
-			<HeaderToolboxAction icon='kebab' />
-		</HeaderToolbox>
+		<HeaderToolbar>
+			<HeaderToolbarAction icon='magnifier' />
+			<HeaderToolbarAction icon='key' />
+			<HeaderToolbarAction icon='kebab' />
+		</HeaderToolbar>
 	</Header>
 );
 
@@ -150,17 +151,17 @@ export const WithActionBadge = () => (
 				<HeaderSubtitle>{room.name}</HeaderSubtitle>
 			</HeaderContentRow>
 		</HeaderContent>
-		<HeaderToolbox>
-			<HeaderToolboxAction icon='phone'>
-				<HeaderToolboxActionBadge variant='primary'>1</HeaderToolboxActionBadge>
-			</HeaderToolboxAction>
-			<HeaderToolboxAction icon='phone'>
-				<HeaderToolboxActionBadge variant='danger'>2</HeaderToolboxActionBadge>
-			</HeaderToolboxAction>
-			<HeaderToolboxAction icon='phone'>
-				<HeaderToolboxActionBadge variant='warning'>99</HeaderToolboxActionBadge>
-			</HeaderToolboxAction>
-			<HeaderToolboxAction icon='kebab' />
-		</HeaderToolbox>
+		<HeaderToolbar>
+			<HeaderToolbarAction icon='phone'>
+				<HeaderToolbarActionBadge variant='primary'>1</HeaderToolbarActionBadge>
+			</HeaderToolbarAction>
+			<HeaderToolbarAction icon='phone'>
+				<HeaderToolbarActionBadge variant='danger'>2</HeaderToolbarActionBadge>
+			</HeaderToolbarAction>
+			<HeaderToolbarAction icon='phone'>
+				<HeaderToolbarActionBadge variant='warning'>99</HeaderToolbarActionBadge>
+			</HeaderToolbarAction>
+			<HeaderToolbarAction icon='kebab' />
+		</HeaderToolbar>
 	</Header>
 );

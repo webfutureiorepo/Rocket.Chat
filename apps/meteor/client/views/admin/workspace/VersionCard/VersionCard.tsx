@@ -1,25 +1,25 @@
 import type { IWorkspaceInfo } from '@rocket.chat/core-typings';
-import { Box, Icon } from '@rocket.chat/fuselage';
-import { useMediaQuery } from '@rocket.chat/fuselage-hooks';
+import { Box, Card, CardBody, CardCol, CardControls, CardHeader, CardTitle, Icon } from '@rocket.chat/fuselage';
+import { useBreakpoints } from '@rocket.chat/fuselage-hooks';
 import type { SupportedVersions } from '@rocket.chat/server-cloud-communication';
-import { Card, CardBody, CardCol, CardColSection, CardColTitle, CardFooter, ExternalLink } from '@rocket.chat/ui-client';
+import { ExternalLink } from '@rocket.chat/ui-client';
 import type { LocationPathname } from '@rocket.chat/ui-contexts';
-import { useModal, useMediaUrl } from '@rocket.chat/ui-contexts';
+import { useSetModal, useMediaUrl } from '@rocket.chat/ui-contexts';
 import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
-import { useFormatDate } from '../../../../hooks/useFormatDate';
-import { useLicense, useLicenseName } from '../../../../hooks/useLicense';
-import { useRegistrationStatus } from '../../../../hooks/useRegistrationStatus';
-import { isOverLicenseLimits } from '../../../../lib/utils/isOverLicenseLimits';
 import VersionCardActionButton from './components/VersionCardActionButton';
 import type { VersionActionItem } from './components/VersionCardActionItem';
-import VersionCardActionItemList from './components/VersionCardActionItemList';
+import VersionCardActionItem from './components/VersionCardActionItem';
 import { VersionCardSkeleton } from './components/VersionCardSkeleton';
 import { VersionTag } from './components/VersionTag';
 import { getVersionStatus } from './getVersionStatus';
 import RegisterWorkspaceModal from './modals/RegisterWorkspaceModal';
+import { useFormatDate } from '../../../../hooks/useFormatDate';
+import { useLicense, useLicenseName } from '../../../../hooks/useLicense';
+import { useRegistrationStatus } from '../../../../hooks/useRegistrationStatus';
+import { isOverLicenseLimits } from '../../../../lib/utils/isOverLicenseLimits';
 
 const SUPPORT_EXTERNAL_LINK = 'https://go.rocket.chat/i/version-support';
 const RELEASES_EXTERNAL_LINK = 'https://go.rocket.chat/i/update-product';
@@ -29,23 +29,24 @@ type VersionCardProps = {
 };
 
 const VersionCard = ({ serverInfo }: VersionCardProps): ReactElement => {
-	const mediaQuery = useMediaQuery('(min-width: 1024px)');
+	const breakpoints = useBreakpoints();
+	const isExtraLargeOrBigger = breakpoints.includes('xl');
 
 	const getUrl = useMediaUrl();
 	const cardBackground = {
 		backgroundImage: `url(${getUrl('images/globe.png')})`,
 		backgroundRepeat: 'no-repeat',
-		backgroundPosition: 'right 20px center',
-		backgroundSize: mediaQuery ? 'auto' : 'contain',
+		backgroundPosition: isExtraLargeOrBigger ? 'right 20px center' : 'left 450px center',
+		backgroundSize: 'auto',
 	};
 
-	const { setModal } = useModal();
+	const setModal = useSetModal();
 
 	const { t } = useTranslation();
 
 	const formatDate = useFormatDate();
 
-	const { data: licenseData, isLoading, refetch: refetchLicense } = useLicense({ loadValues: true });
+	const { data: licenseData, isPending, refetch: refetchLicense } = useLicense({ loadValues: true });
 	const { isRegistered } = useRegistrationStatus();
 
 	const { license, limits } = licenseData || {};
@@ -113,17 +114,15 @@ const VersionCard = ({ serverInfo }: VersionCardProps): ReactElement => {
 			[
 				isOverLimits
 					? {
-							type: 'danger',
+							danger: true,
 							icon: 'warning',
 							label: t('Plan_limits_reached'),
-					  }
+						}
 					: {
-							type: 'neutral',
 							icon: 'check',
 							label: t('Operating_withing_plan_limits'),
-					  },
+						},
 				(isAirgapped || !versions) && {
-					type: 'neutral',
 					icon: 'warning',
 					label: (
 						<Trans i18nKey='Check_support_availability'>
@@ -136,7 +135,6 @@ const VersionCard = ({ serverInfo }: VersionCardProps): ReactElement => {
 
 				versionStatus?.label !== 'outdated' &&
 					versionStatus?.expiration && {
-						type: 'neutral',
 						icon: 'check',
 						label: (
 							<Trans i18nKey='Version_supported_until' values={{ date: formatDate(versionStatus?.expiration) }}>
@@ -147,7 +145,7 @@ const VersionCard = ({ serverInfo }: VersionCardProps): ReactElement => {
 						),
 					},
 				versionStatus?.label === 'outdated' && {
-					type: 'danger',
+					danger: true,
 					icon: 'warning',
 					label: (
 						<Trans i18nKey='Version_not_supported'>
@@ -158,54 +156,47 @@ const VersionCard = ({ serverInfo }: VersionCardProps): ReactElement => {
 				},
 				isRegistered
 					? {
-							type: 'neutral',
 							icon: 'check',
 							label: t('Workspace_registered'),
-					  }
+						}
 					: {
-							type: 'danger',
+							danger: true,
 							icon: 'warning',
 							label: t('Workspace_not_registered'),
-					  },
+						},
 			].filter(Boolean) as VersionActionItem[]
-		).sort((a) => (a.type === 'danger' ? -1 : 1));
+		).sort((a) => (a.danger ? -1 : 1));
 	}, [isOverLimits, t, isAirgapped, versions, versionStatus?.label, versionStatus?.expiration, formatDate, isRegistered]);
 
-	return (
-		<Card background={cardBackground}>
-			{!isLoading && licenseData ? (
-				<>
-					<CardBody>
-						<CardCol>
-							<CardColTitle>
-								<Box fontScale='h3' mbe={4} display='flex'>
-									{t('Version_version', { version: serverVersion })}
-									<Box mis={8} alignSelf='center' width='auto'>
-										{!isAirgapped && versions && <VersionTag versionStatus={versionStatus?.label} title={versionStatus.version} />}
-									</Box>
-								</Box>
-							</CardColTitle>
-
-							<CardColSection m={0}>
-								<Box color='secondary-info' fontScale='p2'>
-									<Icon name='rocketchat' size={16} /> {licenseName.data}
-								</Box>
-							</CardColSection>
-							{actionItems.length > 0 && (
-								<CardColSection>
-									<VersionCardActionItemList actionItems={actionItems} />
-								</CardColSection>
-							)}
-						</CardCol>
-					</CardBody>
-					{actionButton && (
-						<CardFooter>
-							<VersionCardActionButton {...actionButton} />
-						</CardFooter>
-					)}
-				</>
-			) : (
+	if (isPending && !licenseData) {
+		return (
+			<Card style={{ ...cardBackground }}>
 				<VersionCardSkeleton />
+			</Card>
+		);
+	}
+
+	return (
+		<Card style={{ ...cardBackground }}>
+			<CardCol>
+				<CardHeader>
+					<CardTitle variant='h3'>{t('Version_version', { version: serverVersion })}</CardTitle>
+					{!isAirgapped && versions && <VersionTag versionStatus={versionStatus?.label} title={versionStatus.version} />}
+				</CardHeader>
+
+				<Box color='secondary-info'>
+					<Icon name='rocketchat' size={16} /> {licenseName.data}
+				</Box>
+			</CardCol>
+
+			<CardBody flexDirection='column'>
+				{actionItems.length > 0 && actionItems.map((item, index) => <VersionCardActionItem key={index} {...item} />)}
+			</CardBody>
+
+			{actionButton && (
+				<CardControls>
+					<VersionCardActionButton {...actionButton} />
+				</CardControls>
 			)}
 		</Card>
 	);

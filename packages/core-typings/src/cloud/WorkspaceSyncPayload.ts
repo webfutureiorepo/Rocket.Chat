@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import type { UiKit } from '..';
+import type * as UiKit from '@rocket.chat/ui-kit';
+
 import type { IBanner } from '../IBanner';
 import type { Announcement } from './Announcement';
 import type { NpsSurveyAnnouncement } from './NpsSurveyAnnouncement';
@@ -48,6 +49,7 @@ export interface WorkspaceSyncResponse {
 	publicKey: string;
 	license: unknown;
 	removeLicense?: boolean;
+	cloudSyncAnnouncement: unknown;
 }
 
 export interface WorkspaceCommsRequestPayload {

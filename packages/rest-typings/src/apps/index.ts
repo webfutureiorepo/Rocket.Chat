@@ -5,6 +5,7 @@ import type { IPermission } from '@rocket.chat/apps-engine/definition/permission
 import type { ISetting } from '@rocket.chat/apps-engine/definition/settings';
 import type { IUIActionButton } from '@rocket.chat/apps-engine/definition/ui';
 import type {
+	AppCategory,
 	AppScreenshot,
 	App,
 	FeaturedAppsSection,
@@ -12,8 +13,8 @@ import type {
 	AppRequestFilter,
 	AppRequestsStats,
 	PaginatedAppRequests,
-	UiKit,
 } from '@rocket.chat/core-typings';
+import type * as UiKit from '@rocket.chat/ui-kit';
 
 export type AppsEndpoints = {
 	'/apps/count': {
@@ -124,7 +125,7 @@ export type AppsEndpoints = {
 			status: string;
 		};
 		POST: (params: { status: AppStatus }) => {
-			status: string;
+			status: AppStatus;
 		};
 	};
 
@@ -162,13 +163,7 @@ export type AppsEndpoints = {
 	};
 
 	'/apps/categories': {
-		GET: () => {
-			createdDate: Date;
-			description: string;
-			id: string;
-			modifiedDate: Date;
-			title: string;
-		}[];
+		GET: () => AppCategory[];
 	};
 
 	'/apps/buildExternalUrl': {
@@ -209,7 +204,7 @@ export type AppsEndpoints = {
 		};
 	};
 
-	'/apps/': {
+	'/apps': {
 		GET:
 			| ((params: { buildExternalUrl: 'true'; purchaseType?: 'buy' | 'subscription'; appId?: string; details?: 'true' | 'false' }) => {
 					url: string;
@@ -239,15 +234,26 @@ export type AppsEndpoints = {
 			  }[])
 			| (() => { apps: App[] });
 
-		POST: (params: {
-			appId: string;
-			marketplace: boolean;
-			version: string;
-			permissionsGranted?: IPermission[];
-			url?: string;
-			downloadOnly?: boolean;
-		}) => {
-			app: App;
+		POST: {
+			(
+				params:
+					| {
+							appId: string;
+							marketplace: boolean;
+							version: string;
+							permissionsGranted?: IPermission[];
+							url?: string;
+					  }
+					| { url: string },
+			):
+				| {
+						app: App;
+				  }
+				| {
+						buff: {
+							data: ArrayLike<number>;
+						};
+				  };
 		};
 	};
 

@@ -1,21 +1,25 @@
+import type {
+	ILicenseTag,
+	LicenseEvents,
+	ILicenseV2,
+	ILicenseV3,
+	LicenseLimitKind,
+	BehaviorWithContext,
+	LicenseBehavior,
+	LicenseInfo,
+	LicenseValidationOptions,
+	LimitContext,
+	LicenseModule,
+} from '@rocket.chat/core-typings';
 import { Emitter } from '@rocket.chat/emitter';
 
-import { type ILicenseTag } from './definition/ILicenseTag';
-import type { ILicenseV2 } from './definition/ILicenseV2';
-import type { ILicenseV3, LicenseLimitKind } from './definition/ILicenseV3';
-import type { BehaviorWithContext, LicenseBehavior } from './definition/LicenseBehavior';
-import type { LicenseInfo } from './definition/LicenseInfo';
-import type { LicenseModule } from './definition/LicenseModule';
-import type { LicenseValidationOptions } from './definition/LicenseValidationOptions';
-import type { LimitContext } from './definition/LimitContext';
-import type { LicenseEvents } from './definition/events';
 import { getLicenseLimit } from './deprecated';
 import { DuplicatedLicenseError } from './errors/DuplicatedLicenseError';
 import { InvalidLicenseError } from './errors/InvalidLicenseError';
 import { NotReadyForValidation } from './errors/NotReadyForValidation';
 import { behaviorTriggered, behaviorTriggeredToggled, licenseInvalidated, licenseValidated } from './events/emitter';
 import { logger } from './logger';
-import { getModules, invalidateAll, replaceModules } from './modules';
+import { getExternalModules, getModules, invalidateAll, replaceModules } from './modules';
 import { applyPendingLicense, clearPendingLicense, hasPendingLicense, isPendingLicense, setPendingLicense } from './pendingLicense';
 import { replaceTags } from './tags';
 import { decrypt } from './token';
@@ -353,10 +357,10 @@ export class LicenseManager extends Emitter<LicenseEvents> {
 								limits: [limit],
 							}),
 							['prevent_action'],
-					  )
+						)
 					: isBehaviorsInResult(await validateDefaultLimits.call(this, { behaviors: ['prevent_action'], limits: [limit] }), [
 							'prevent_action',
-					  ]);
+						]);
 
 				this.shouldPreventActionResults.set(limit as LicenseLimitKind, fresh);
 
@@ -430,7 +434,7 @@ export class LicenseManager extends Emitter<LicenseEvents> {
 						reason: 'limit',
 						limit: action,
 					} as BehaviorWithContext,
-			  ];
+				];
 
 		if (this.consolidateBehaviorState(action, 'prevent_action', shouldPreventAction)) {
 			this.triggerBehaviorEventsToggled(eventsToEmit);
@@ -468,6 +472,7 @@ export class LicenseManager extends Emitter<LicenseEvents> {
 		license: boolean;
 	}): Promise<LicenseInfo> {
 		const activeModules = getModules.call(this);
+		const externalModules = getExternalModules.call(this);
 		const license = this.getLicense();
 
 		// Get all limits present in the license and their current value
@@ -492,6 +497,7 @@ export class LicenseManager extends Emitter<LicenseEvents> {
 		return {
 			license: (includeLicense && license) || undefined,
 			activeModules,
+			externalModules,
 			preventedActions: await this.shouldPreventActionResultsMap(),
 			limits: limits as Record<LicenseLimitKind, { max: number; value: number }>,
 			tags: license?.information.tags || [],

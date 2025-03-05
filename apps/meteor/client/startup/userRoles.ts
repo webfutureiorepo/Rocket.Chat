@@ -1,8 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Tracker } from 'meteor/tracker';
 
-import { UserRoles, ChatMessage } from '../../app/models/client';
-import { Notifications } from '../../app/notifications/client';
+import { UserRoles, Messages } from '../../app/models/client';
 import { sdk } from '../../app/utils/client/lib/SDKClient';
 import { dispatchToastMessage } from '../lib/toast';
 
@@ -20,14 +19,14 @@ Meteor.startup(() => {
 					dispatchToastMessage({ type: 'error', message: error });
 				});
 
-			Notifications.onLogged('roles-change', (role) => {
+			sdk.stream('notify-logged', ['roles-change'], (role) => {
 				if (role.type === 'added') {
 					if (!role.scope) {
 						if (!role.u) {
 							return;
 						}
 						UserRoles.upsert({ _id: role.u._id }, { $addToSet: { roles: role._id }, $set: { username: role.u.username } });
-						ChatMessage.update({ 'u._id': role.u._id }, { $addToSet: { roles: role._id } }, { multi: true });
+						Messages.update({ 'u._id': role.u._id }, { $addToSet: { roles: role._id } }, { multi: true });
 					}
 
 					return;
@@ -39,14 +38,14 @@ Meteor.startup(() => {
 							return;
 						}
 						UserRoles.update({ _id: role.u._id }, { $pull: { roles: role._id } });
-						ChatMessage.update({ 'u._id': role.u._id }, { $pull: { roles: role._id } }, { multi: true });
+						Messages.update({ 'u._id': role.u._id }, { $pull: { roles: role._id } }, { multi: true });
 					}
 
 					return;
 				}
 
 				if (role.type === 'changed') {
-					ChatMessage.update({ roles: role._id }, { $inc: { rerender: 1 } }, { multi: true });
+					Messages.update({ roles: role._id }, { $inc: { rerender: 1 } }, { multi: true });
 				}
 			});
 		}
